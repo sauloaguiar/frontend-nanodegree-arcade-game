@@ -20,13 +20,11 @@ var Engine = (function(global) {
      */
     var doc = global.document,
         win = global.window,
-        canvas = doc.createElement('canvas'),
+        canvas = doc.getElementById('canvas'),
         ctx = canvas.getContext('2d'),
-        lastTime;
-
-    canvas.width = 505;
-    canvas.height = 606;
-    doc.body.appendChild(canvas);
+        lastTime,
+        running,
+        animationReference;
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -54,8 +52,15 @@ var Engine = (function(global) {
 
         /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
+         * 
+         * Using the created reference to stop the animatino later on
          */
-        win.requestAnimationFrame(main);
+        if (running) {
+            animationReference = win.requestAnimationFrame(main);
+        } else {
+            win.cancelAnimationFrame(animationReference);
+        }
+        
     }
 
     /* This function does some initial setup that should only occur once,
@@ -65,6 +70,7 @@ var Engine = (function(global) {
     function init() {
         reset();
         lastTime = Date.now();
+        running = true;
         main();
     }
 
@@ -139,6 +145,11 @@ var Engine = (function(global) {
         }
 
         renderEntities();
+        renderScore();
+    }
+
+    function renderScore() {
+        score.render();
     }
 
     /* This function is called by the render function and is called on each game
@@ -161,7 +172,13 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        // noop
+        player.reset();
+        allEnemies.splice(0, allEnemies.length);
+        score.reset();
+    }
+
+    function stop() {
+        running = false;
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -182,4 +199,9 @@ var Engine = (function(global) {
      * from within their app.js files.
      */
     global.ctx = ctx;
+
+    // exposing engine state methods
+    global.reset = reset;
+    global.stop = stop;
+    global.init = init;
 })(this);

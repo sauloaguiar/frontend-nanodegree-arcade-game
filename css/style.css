@@ -1,3 +1,30 @@
 body {
     text-align: center;
 }
+
+#game-over {
+    position: absolute;
+    display: none;
+    top: 150px;
+    right: 373px;
+    border-radius: 15px;
+    width: 250px;
+    background: linear-gradient(#5870d8, #5ec148d4);
+    height: 120px;
+}
+h2 {
+    color: white;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+.button {
+    display: block;
+    width: 150px;
+    margin: 0 auto;
+    height: 30px;
+    line-height: 30px;
+    border: 1px solid #AA2666;
+    color: white;
+    font-weight: bold;
+    background-color: #cd6735;
+    border-radius: 5px;
+  }
