@@ -9,7 +9,10 @@ var Enemy = function(x, y, speed) {
 
     this.x = x;
     this.y = y;
+    this.width = 101;
+    this.height = 171;
     this.speed = speed;
+
 };
 
 // Update the enemy's position, required method for game
@@ -19,10 +22,15 @@ Enemy.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
     this.x += this.speed * dt;
-    if (Math.abs(this.x - player.x) < 50 && Math.abs(this.y - player.y) < 30) {
-        stop();
-        displayEndgame();   
-    }
+
+    // https://developer.mozilla.org/kab/docs/Games/Techniques/2D_collision_detection
+    if ((this.x + this.width/2) < (player.x + player.width/2) + player.width/2 &&
+        ((this.x + this.width/2) + this.width/2) > (player.x + player.width/2) && 
+        (this.y + this.height/2) < ((player.y + player.height/2) + player.height/2) &&
+        ((this.y + this.height/2) + this.height/2) > (player.y + player.height/2)) {
+            Engine.stop();
+            displayEndgame();   
+        }
 };
 
 // Draw the enemy on the screen, required method for game
@@ -34,12 +42,17 @@ Enemy.prototype.render = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 const PLAYER_INITIAL_X = 200;
-const PLAYER_INITIAL_Y = 400;
+const PLAYER_INITIAL_Y = 398;
+
+const ENEMY_START_X = -10;
 
 const Player = function(x, y) {
     this.x = x;
     this.y = y;
     this.sprite = 'images/char-boy.png';
+    this.width = 101;
+    this.height = 171;
+    
 }
 
 Player.prototype.update = function() {
@@ -64,19 +77,19 @@ Player.prototype.handleInput = function(input) {
     const rowHeight = ctx.canvas.height / 7;
     switch(input) {
         case 'right':
-            if (((this.x + 50.5) + colWidth) < ctx.canvas.width)
+            if (((this.x + this.width) + colWidth) < ctx.canvas.width)
                 this.x += colWidth;
             break;
         case 'left':
-            if (((this.x + 50.5) - colWidth) > 0)
+            if (((this.x + this.width) - colWidth) > 0)
                 this.x -= colWidth;
             break;
         case 'down':
-            if (((this.y + 85.5) + rowHeight) < 500)
+            if (((this.y + this.height) + rowHeight) < ctx.canvas.height)
                 this.y += rowHeight;
             break;
         case 'up':
-            if (((this.y + 85.5) - rowHeight) > 0)
+            if (((this.y + this.height) - rowHeight) > 0)
                 this.y -= rowHeight;
             break;
         default:
@@ -109,18 +122,22 @@ Score.prototype.value = function() {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-const enemyPosition = [50, 150, 230];
+const enemyPosition = [50, 138, 225];
 setInterval(function() {
-    allEnemies.push(new Enemy(-10, enemyPosition[Math.floor(Math.random()*enemyPosition.length)], 100));
+    allEnemies.push(
+        new Enemy(
+            ENEMY_START_X, 
+            enemyPosition[Math.floor(Math.random()*enemyPosition.length)], 100)
+    );
 }, 1500);
 const allEnemies = [];
-const player = new Player(200, 400);
+const player = new Player(PLAYER_INITIAL_X, PLAYER_INITIAL_Y);
 
 const score = new Score(0);
 
 function displayEndgame() {
     document.getElementById('score').innerHTML = score.value();
-    document.getElementById('game-over').style.display = 'block';
+    document.getElementById('game-over').style.display = 'flex';
 }
 
 // This listens for key presses and sends the keys to your
@@ -138,5 +155,7 @@ document.addEventListener('keyup', function(e) {
 
 document.getElementById('reset').addEventListener('click', function() {
     document.getElementById('game-over').style.display = 'none';
-    init();
+    Engine.init();
 });
+
+

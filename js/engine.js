@@ -204,4 +204,9 @@ var Engine = (function(global) {
     global.reset = reset;
     global.stop = stop;
     global.init = init;
+    return {
+        reset,
+        stop,
+        init,
+    }
 })(this);
