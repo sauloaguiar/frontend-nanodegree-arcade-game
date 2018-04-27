@@ -1,3 +1,10 @@
+const PLAYER_INITIAL_X = 200;
+const PLAYER_INITIAL_Y = 398;
+
+const ENEMY_START_X = -10;
+const ENEMY_DISPLAY_INTERVAL = 1000;
+const ENEMY_INITAL_SPEED = 300;
+
 // Enemies our player must avoid
 var Enemy = function(x, y, speed) {
     // Variables applied to each of our instances go here,
@@ -41,22 +48,16 @@ Enemy.prototype.render = function() {
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
-const PLAYER_INITIAL_X = 200;
-const PLAYER_INITIAL_Y = 398;
-
-const ENEMY_START_X = -10;
-
 const Player = function(x, y) {
     this.x = x;
     this.y = y;
     this.sprite = 'images/char-boy.png';
     this.width = 101;
     this.height = 171;
-    
 }
 
 Player.prototype.update = function() {
-    // has reached water
+    // player has reached water
     if (this.y < 0) {
         this.reset();
         score.increment();
@@ -97,8 +98,8 @@ Player.prototype.handleInput = function(input) {
     }
 }
 
-const Score = function(initial) {
-    this.score = initial;
+const Score = function() {
+    this.score = 1;
 }
 
 Score.prototype.render = function() {
@@ -112,7 +113,7 @@ Score.prototype.increment = function() {
 }
 
 Score.prototype.reset = function() {
-    this.score = 0;
+    this.score = 1;
 }
 
 Score.prototype.value = function() { 
@@ -122,23 +123,30 @@ Score.prototype.value = function() {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-const enemyPosition = [50, 138, 225];
+const enemyDefaultPositions = [50, 138, 225];
+
+// Interval to put enemies on the map
 setInterval(function() {
     allEnemies.push(
         new Enemy(
             ENEMY_START_X, 
-            enemyPosition[Math.floor(Math.random()*enemyPosition.length)], 100)
+            enemyDefaultPositions[Math.floor(Math.random()*enemyDefaultPositions.length)],
+            ENEMY_INITAL_SPEED)
     );
-}, 1500);
+}, ENEMY_DISPLAY_INTERVAL);
+
+
+function getEnemySpeed() {
+    return ENEMY_INITAL_SPEED * (score.value() * 1.1);
+}
+
+function getEnemyInterval() {
+    return ENEMY_DISPLAY_INTERVAL * (score.value() * 1.5);
+}
+
 const allEnemies = [];
 const player = new Player(PLAYER_INITIAL_X, PLAYER_INITIAL_Y);
-
-const score = new Score(0);
-
-function displayEndgame() {
-    document.getElementById('score').innerHTML = score.value();
-    document.getElementById('game-over').style.display = 'flex';
-}
+const score = new Score();
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
@@ -149,10 +157,16 @@ document.addEventListener('keyup', function(e) {
         39: 'right',
         40: 'down'
     };
-
     player.handleInput(allowedKeys[e.keyCode]);
 });
 
+// Display dialog with player achievement
+function displayEndgame() {
+    document.getElementById('score').innerHTML = score.value();
+    document.getElementById('game-over').style.display = 'flex';
+}
+
+// Sets up handler to reset the game
 document.getElementById('reset').addEventListener('click', function() {
     document.getElementById('game-over').style.display = 'none';
     Engine.init();
